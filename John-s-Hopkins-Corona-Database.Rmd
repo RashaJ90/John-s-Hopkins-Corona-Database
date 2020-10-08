@@ -1,0 +1,161 @@
+---
+title: "John-s-Hopkins-Corona-Database"
+author: "Rahsa Jaber "
+date: "4/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+Data Preparation and Manipulation
+
+1.We first prepare and aggregate the data.
+
+
+1. load the Corona Confirmed Cases Narrow, the Corona Confirmed Deaths Narrow, and the Corona Confirmed Recovered Narrow datasets directly from the John’s Hopkins website.
+
+
+
+```{r}
+Corona.Cases <- read.csv(url("https://data.humdata.org/hxlproxy/data/download/time_series_covid19_confirmed_global_narrow.csv?dest=data_edit&filter01=merge&merge-url01=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2Fe%2F2PACX-1vTglKQRXpkKSErDiWG6ycqEth32MY0reMuVGhaslImLjfuLU0EUgyyu2e-3vKDArjqGX7dXEBV8FJ4f%2Fpub%3Fgid%3D1326629740%26single%3Dtrue%26output%3Dcsv&merge-keys01=%23country%2Bname&merge-tags01=%23country%2Bcode%2C%23region%2Bmain%2Bcode%2C%23region%2Bsub%2Bcode%2C%23region%2Bintermediate%2Bcode&filter02=merge&merge-url02=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2Fe%2F2PACX-1vTglKQRXpkKSErDiWG6ycqEth32MY0reMuVGhaslImLjfuLU0EUgyyu2e-3vKDArjqGX7dXEBV8FJ4f%2Fpub%3Fgid%3D398158223%26single%3Dtrue%26output%3Dcsv&merge-keys02=%23adm1%2Bname&merge-tags02=%23country%2Bcode%2C%23region%2Bmain%2Bcode%2C%23region%2Bsub%2Bcode%2C%23region%2Bintermediate%2Bcode&merge-replace02=on&merge-overwrite02=on&filter03=explode&explode-header-att03=date&explode-value-att03=value&filter04=rename&rename-oldtag04=%23affected%2Bdate&rename-newtag04=%23date&rename-header04=Date&filter05=rename&rename-oldtag05=%23affected%2Bvalue&rename-newtag05=%23affected%2Binfected%2Bvalue%2Bnum&rename-header05=Value&filter06=clean&clean-date-tags06=%23date&filter07=sort&sort-tags07=%23date&sort-reverse07=on&filter08=sort&sort-tags08=%23country%2Bname%2C%23adm1%2Bname&tagger-match-all=on&tagger-default-tag=%23affected%2Blabel&tagger-01-header=province%2Fstate&tagger-01-tag=%23adm1%2Bname&tagger-02-header=country%2Fregion&tagger-02-tag=%23country%2Bname&tagger-03-header=lat&tagger-03-tag=%23geo%2Blat&tagger-04-header=long&tagger-04-tag=%23geo%2Blon&header-row=1&url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_confirmed_global.csv"), comment.char="#")
+
+Corona.Deaths <- read.csv(url("https://data.humdata.org/hxlproxy/data/download/time_series_covid19_deaths_global_narrow.csv?dest=data_edit&filter01=merge&merge-url01=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2Fe%2F2PACX-1vTglKQRXpkKSErDiWG6ycqEth32MY0reMuVGhaslImLjfuLU0EUgyyu2e-3vKDArjqGX7dXEBV8FJ4f%2Fpub%3Fgid%3D1326629740%26single%3Dtrue%26output%3Dcsv&merge-keys01=%23country%2Bname&merge-tags01=%23country%2Bcode%2C%23region%2Bmain%2Bcode%2C%23region%2Bsub%2Bcode%2C%23region%2Bintermediate%2Bcode&filter02=merge&merge-url02=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2Fe%2F2PACX-1vTglKQRXpkKSErDiWG6ycqEth32MY0reMuVGhaslImLjfuLU0EUgyyu2e-3vKDArjqGX7dXEBV8FJ4f%2Fpub%3Fgid%3D398158223%26single%3Dtrue%26output%3Dcsv&merge-keys02=%23adm1%2Bname&merge-tags02=%23country%2Bcode%2C%23region%2Bmain%2Bcode%2C%23region%2Bsub%2Bcode%2C%23region%2Bintermediate%2Bcode&merge-replace02=on&merge-overwrite02=on&filter03=explode&explode-header-att03=date&explode-value-att03=value&filter04=rename&rename-oldtag04=%23affected%2Bdate&rename-newtag04=%23date&rename-header04=Date&filter05=rename&rename-oldtag05=%23affected%2Bvalue&rename-newtag05=%23affected%2Binfected%2Bvalue%2Bnum&rename-header05=Value&filter06=clean&clean-date-tags06=%23date&filter07=sort&sort-tags07=%23date&sort-reverse07=on&filter08=sort&sort-tags08=%23country%2Bname%2C%23adm1%2Bname&tagger-match-all=on&tagger-default-tag=%23affected%2Blabel&tagger-01-header=province%2Fstate&tagger-01-tag=%23adm1%2Bname&tagger-02-header=country%2Fregion&tagger-02-tag=%23country%2Bname&tagger-03-header=lat&tagger-03-tag=%23geo%2Blat&tagger-04-header=long&tagger-04-tag=%23geo%2Blon&header-row=1&url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_deaths_global.csv"), comment.char="#")
+
+Corona.Recovered <- read.csv(url("https://data.humdata.org/hxlproxy/data/download/time_series_covid19_recovered_global_narrow.csv?dest=data_edit&filter01=merge&merge-url01=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2Fe%2F2PACX-1vTglKQRXpkKSErDiWG6ycqEth32MY0reMuVGhaslImLjfuLU0EUgyyu2e-3vKDArjqGX7dXEBV8FJ4f%2Fpub%3Fgid%3D1326629740%26single%3Dtrue%26output%3Dcsv&merge-keys01=%23country%2Bname&merge-tags01=%23country%2Bcode%2C%23region%2Bmain%2Bcode%2C%23region%2Bsub%2Bcode%2C%23region%2Bintermediate%2Bcode&filter02=merge&merge-url02=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2Fe%2F2PACX-1vTglKQRXpkKSErDiWG6ycqEth32MY0reMuVGhaslImLjfuLU0EUgyyu2e-3vKDArjqGX7dXEBV8FJ4f%2Fpub%3Fgid%3D398158223%26single%3Dtrue%26output%3Dcsv&merge-keys02=%23adm1%2Bname&merge-tags02=%23country%2Bcode%2C%23region%2Bmain%2Bcode%2C%23region%2Bsub%2Bcode%2C%23region%2Bintermediate%2Bcode&merge-replace02=on&merge-overwrite02=on&filter03=explode&explode-header-att03=date&explode-value-att03=value&filter04=rename&rename-oldtag04=%23affected%2Bdate&rename-newtag04=%23date&rename-header04=Date&filter05=rename&rename-oldtag05=%23affected%2Bvalue&rename-newtag05=%23affected%2Binfected%2Bvalue%2Bnum&rename-header05=Value&filter06=clean&clean-date-tags06=%23date&filter07=sort&sort-tags07=%23date&sort-reverse07=on&filter08=sort&sort-tags08=%23country%2Bname%2C%23adm1%2Bname&tagger-match-all=on&tagger-default-tag=%23affected%2Blabel&tagger-01-header=province%2Fstate&tagger-01-tag=%23adm1%2Bname&tagger-02-header=country%2Fregion&tagger-02-tag=%23country%2Bname&tagger-03-header=lat&tagger-03-tag=%23geo%2Blat&tagger-04-header=long&tagger-04-tag=%23geo%2Blon&header-row=1&url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_recovered_global.csv"), comment.char="#")
+
+Corona.Cases$Date <- as.Date(Corona.Cases$Date)
+Corona.Deaths$Date <- as.Date(Corona.Deaths$Date)
+Corona.Recovered$Date <- as.Date(Corona.Recovered$Date)
+ 
+class(Corona.Cases$Date)
+```
+
+
+2. Create new data-frames named cases.agg, deaths.agg, and recovered.agg which aggregate the sum of Corona cases, deaths, and recovered respectively over the different countries’ provinces. To do this, aggregate Value using only the country and date features, ignoring all other features .To achieve the aggregation use the aggregate function. In addition, order the data-frame first by Country and then by Date (increasing order). The columns of each of the two resulting data-frames should be Country.Region, Date, Value. 
+
+
+```{r }
+cases.agg <- aggregate(Value ~ Country.Region + Date, data = Corona.Cases, FUN = sum)
+cases.agg <- cases.agg[order(cases.agg$Country.Region, cases.agg$Date, decreasing = FALSE), ]
+
+deaths.agg <- aggregate(Value ~ Country.Region + Date, data = Corona.Deaths, FUN = sum) 
+deaths.agg <- deaths.agg[order(deaths.agg$Country.Region, deaths.agg$Date, decreasing = FALSE), ]
+
+recovered.agg <- aggregate(Value ~ Country.Region + Date, data = Corona.Recovered, FUN = sum)
+recovered.agg <- recovered.agg[order(recovered.agg$Country.Region, recovered.agg$Date, decreasing = FALSE), ]
+
+head(recovered.agg)
+
+#Aggregating using tidyverse and the pipe:
+cases.agg2 <- Corona.Cases %>% select(Country.Region, Date, Value) %>%  group_by(Country.Region,Date) %>% summarise(total = sum(Value))  
+deaths.agg2 <- Corona.Deaths %>% select(Country.Region, Date, Value) %>%  group_by(Country.Region,Date) %>% summarise(total = sum(Value))  
+recovered.agg2 <- Corona.Recovered %>% select(Country.Region, Date, Value) %>%  group_by(Country.Region,Date) %>% summarise(total = sum(Value)) 
+
+head(deaths.agg2)
+
+#Verifying output of two approaches is the same:
+
+all(cases.agg==cases.agg2)
+
+```
+
+
+
+3.Using the last day of March as a reference, create a single stacked bar-plot that visualizes the top 10 countries in terms of their Corona cases, and their respected Corona deaths and recovered cases stacked on top of the current sick people in three different colors (each stack should add up to total cases). Make sure that the first stack shows the number of confirmed Corona sick people (sick = cases - deaths - recovered). Each stacked bar should represent a country. Use the barplot base R function to create this plot.
+
+
+```{r}
+
+ref <- '2020-03-31'
+Mar.cases <- cases.agg  %>% filter(Date ==ref)%>% arrange(-Value) %>% head(10) %>% arrange(Country.Region)
+
+Mar.deaths <- deaths.agg  %>%  filter(Date ==ref)%>% filter(Country.Region %in% Mar.cases$Country.Region)%>%  arrange(Country.Region)
+
+Mar.recovered <- recovered.agg %>%  filter(Date ==ref)%>% filter(Country.Region %in% Mar.cases$Country.Region)%>%  arrange(Country.Region)
+
+Top.cases <-  data.frame(country.region = Mar.cases$Country.Region, total.cases = Mar.cases$Value, deaths = Mar.deaths$Value, recovered = Mar.recovered$Value) %>% arrange(-total.cases) 
+
+head(Top.cases)
+
+barplot(t(as.matrix(Top.cases[2:4])), names.arg = Top.cases$country.region,  beside = FALSE, legend.text = c("sick", "deaths", "recovered") , col = c("lightblue2", "maroon","palegreen"), las=2,cex.main=0.8,main = " Top 10 Countries in terms of Corona cases (Blue),\n their respective deaths (Red), and respective recovered (Green)")
+
+```
+
+Analysis of Daily New Corona Cases and Deaths
+
+1. The two datasets (Corona Cases and Deaths) register the value of cases and deaths, respectively, as a cumulative sum for each day.Add a new column named Diff to both the cases.agg and the deaths.agg data-frames. This new column should register the daily Value difference for each country. In other words, the Diff column shows how many new cases/deaths each country incurs every day.
+
+
+```{r }
+cases.agg$diff <- cases.agg$Value
+deaths.agg$diff <- deaths.agg$Value
+
+len <- length(cases.agg$Value)
+for (i in 2:len){
+  if (cases.agg$Country.Region[i] == cases.agg$Country.Region[i-1]) {
+    cases.agg$diff[i] <- cases.agg$Value[i] - cases.agg$Value[i-1]
+  } else {
+    
+    cases.agg$diff[i] <- cases.agg$Value[i] 
+  }
+  if (deaths.agg$Country.Region[i] == deaths.agg$Country.Region[i-1]) {
+    deaths.agg$diff[i] <- deaths.agg$Value[i] - deaths.agg$Value[i-1]
+  } else {
+    deaths.agg$diff[i] <- deaths.agg$Value[i]
+  }
+}
+
+head(deaths.agg)
+```
+
+2. Find the top 10 instances of country and date combinations with the greatest absolute number of new daily Corona cases and deaths (separately).
+
+
+```{r}
+
+daily.cases10 <- cases.agg %>% arrange(desc(diff)) %>% top_n(10) %>% select(Country.Region, Date) 
+print(summary(daily.cases10))
+
+daily.deaths10 <- deaths.agg %>% arrange(desc(diff)) %>% top_n(10) %>% select(Country.Region, Date) 
+print(summary(daily.deaths10))
+
+```
+
+3.In one figure, plot Italy’s new daily Corona cases AND deaths as a function of Date. 
+
+
+```{r}
+
+italy.cases <- cases.agg %>% filter(Country.Region == "Italy")
+italy.deaths <- deaths.agg %>% filter(Country.Region == "Italy")
+
+italy<- merge(italy.cases, italy.deaths, by = "Date", by.x = "Date", by.y = "Date", sort = TRUE, all = TRUE)
+italy <- italy %>% select(-c(Country.Region.y, Value.x, Value.y)) %>% rename(Country = "Country.Region.x", daily.sick = "diff.x", daily.deaths = "diff.y")
+
+head(italy)
+
+plot(italy$daily.sick ~ italy$Date, type = "l",col="orange", main = "Italy daily increase of corona cases (orange) and deaths (purple)", xlab = "Date", ylab = "new daily cases/deaths")
+lines(italy$daily.deaths ~ italy$Date, col = "purple", type = "l") 
+legend("topleft",inset = c(0,0), legend = c("sick", "deaths"), fill = c("orange", "purple"))
+
+
+```
+
+4.plot ,on the logarithm scale, Italy’s new daily Corona cases AND deaths as a function of Date.
+
+
+```{r}
+
+plot(log(italy$daily.sick) ~ italy$Date, type = "l",col="orange",cex.main=0.8, main = "Italy daily increase of corona cases (orange) and deaths (purple), log scale", xlab = "Date", ylab = "new daily cases/deaths (log)")
+lines(log(italy$daily.deaths) ~ italy$Date, col = "purple", type = "l")
+legend("topleft",inset = c(0,0), legend = c("sick", "deaths"), fill = c("orange", "purple"))
+
+##The logarithm scale better demonstrates the correlation relationship between Corona cases and deaths, regardless of the differences in scale. In addition, we can clearly see an exponential trend that becomes linear towards the end of March on-wards
+```
+
+
+
